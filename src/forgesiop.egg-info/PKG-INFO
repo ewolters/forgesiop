@@ -1,0 +1,124 @@
+Metadata-Version: 2.4
+Name: forgesiop
+Version: 0.1.0
+Summary: Supply chain planning and inventory optimization — pure Python, no ERP dependency
+Author-email: Eric Wolters <eric.wolters@svend.ai>
+License: MIT
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: scipy>=1.10
+Requires-Dist: numpy>=1.24
+Provides-Extra: forecast
+Requires-Dist: statsmodels>=0.14; extra == "forecast"
+Provides-Extra: meio
+Requires-Dist: stockpyl>=1.0; extra == "meio"
+Provides-Extra: all
+Requires-Dist: forgesiop[forecast,meio]; extra == "all"
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0; extra == "dev"
+Requires-Dist: pytest-cov>=4.0; extra == "dev"
+
+# ForgeSIOP
+
+Supply chain planning and inventory optimization. Pure Python. No ERP dependency.
+
+## Install
+
+```bash
+pip install forgesiop              # Core (demand, inventory, planning, probabilistic)
+pip install forgesiop[forecast]    # Add advanced forecasting (Holt-Winters, ARIMA)
+pip install forgesiop[meio]        # Add multi-echelon inventory optimization
+pip install forgesiop[all]         # Everything
+```
+
+## What's in the box
+
+### Demand
+- Forecasting: SMA, WMA, SES, Holt trend-corrected, Croston (intermittent)
+- Classification: ABC, XYZ, ABC-XYZ matrix
+- Demand sensing: short-horizon signal adjustment
+- Seasonality: decomposition, seasonal indices
+
+### Inventory
+- EOQ with quantity discounts and constraints
+- Dynamic safety stock (demand variability + lead time variability + service level)
+- Reorder policies: ROP, (s,S), (s,Q)
+- Multi-echelon optimization (GSM/SSM) — requires `[meio]`
+- Metrics: turns, days-of-supply, fill rate, GMROI
+
+### Planning
+- MRP: time-phased explosion with BOM, netting, lot sizing, offsetting
+- DDMRP: buffer sizing, net flow equation, execution alerts
+- Capacity: rough-cut (RCCP), finite loading, bottleneck identification
+- Aggregate planning: chase/level/mixed strategies, LP formulation
+- ATP/CTP: available-to-promise and capable-to-promise
+- SIOP: demand/supply balancing over planning horizon, scenario comparison
+
+### Probabilistic (the differentiator)
+- Monte Carlo: propagate distributions through the production plan
+- Yield modeling: yield from Cpk/Ppk process capability
+- Supply risk: risk scoring from supplier quality data
+- Scenario engine: what-if with distribution parameters
+
+## What makes this different
+
+Nobody else connects planning to process knowledge:
+
+- **Yield from capability:** Your Cpk is 0.9 and declining. What does that do to yield? What does yield do to the production plan?
+- **Supply risk from quality data:** Supplier X has 3 open claims and a quality score of 0.4. Adjust safety stock automatically.
+- **Probabilistic planning:** Don't use point estimates. Propagate actual distributions from SPC data through the entire plan.
+- **Standalone DDMRP:** No ERP required. First pip-installable DDMRP engine.
+
+## Quick start
+
+```python
+from forgesiop.inventory import eoq, safety_stock
+from forgesiop.core.types import Item
+
+widget = Item(id="W-100", name="Widget", cost=12.50, lead_time_days=5, lead_time_std_days=1.2)
+
+# Economic order quantity
+order_qty = eoq.economic_order_quantity(
+    annual_demand=10000,
+    ordering_cost=50,
+    holding_cost_rate=0.25,
+    unit_cost=widget.cost,
+)
+
+# Dynamic safety stock
+ss = safety_stock.dynamic_safety_stock(
+    demand_mean=200,      # units per period
+    demand_std=30,
+    lead_time_mean=widget.lead_time_days,
+    lead_time_std=widget.lead_time_std_days,
+    service_level=0.95,
+)
+```
+
+## Architecture
+
+```
+forgesiop/
+├── demand/           # Forecasting, classification, sensing
+├── inventory/        # EOQ, safety stock, reorder, multi-echelon
+├── planning/         # MRP, DDMRP, capacity, aggregate, ATP/CTP, SIOP
+├── probabilistic/    # Monte Carlo, yield, risk, scenarios
+└── core/             # BOM, calendar, types, units
+```
+
+No Django. No database. No ORM. Pure computation. SVEND wraps it with one API endpoint.
+
+## Dependencies
+
+See [DEPENDENCIES.md](DEPENDENCIES.md) for full dependency map with absorption strategy.
+
+| Dependency | Required | License | What it provides |
+|-----------|----------|---------|-----------------|
+| numpy | Yes | BSD-3 | Array operations |
+| scipy | Yes | BSD-3 | Optimization, distributions |
+| statsmodels | Optional | BSD-3 | Holt-Winters, ARIMA |
+| stockpyl | Optional | MIT | Multi-echelon optimization |
+
+## Lineage
+
+CCS 1948 → Protzman → SVEND → ForgeSIOP

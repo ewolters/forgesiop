@@ -1,0 +1,58 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "forgesiop"
+version = "0.1.0"
+description = "Supply chain planning and inventory optimization — pure Python, no ERP dependency"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.10"
+authors = [{name = "Eric Wolters", email = "eric.wolters@svend.ai"}]
+
+dependencies = [
+    # scipy — optimization (LP for aggregate planning, distribution fitting)
+    # BACKUP: pure Python simplex solver in core/optim.py (~200 lines)
+    # ABSORB PATH: copy scipy.optimize.linprog logic for LP, scipy.stats for distributions
+    "scipy>=1.10",
+
+    # numpy — array operations throughout
+    # BACKUP: Python lists + math stdlib for small-scale
+    # ABSORB PATH: replace np.array with lists, np.mean/std with statistics stdlib
+    # NOTE: scipy already requires numpy, so this is implicit
+    "numpy>=1.24",
+]
+
+[project.optional-dependencies]
+# Extended forecasting models
+forecast = [
+    # statsmodels — Holt-Winters, ARIMA, seasonal decomposition
+    # BACKUP: our own exponential smoothing in demand/forecasting.py (SMA, WMA, SES, Holt already pure Python)
+    # ABSORB PATH: Holt-Winters is ~100 lines. ARIMA is complex — defer or drop.
+    "statsmodels>=0.14",
+]
+
+# Multi-echelon optimization
+meio = [
+    # stockpyl — MEIO algorithms (GSM, SSM). MIT license.
+    # BACKUP: implement base-stock newsvendor ourselves (~150 lines per model)
+    # ABSORB PATH: copy relevant algorithms from stockpyl (MIT allows this).
+    # Source: https://github.com/LarrySnyder/stockpyl
+    "stockpyl>=1.0",
+]
+
+# Full install
+all = ["forgesiop[forecast,meio]"]
+
+# Development
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
