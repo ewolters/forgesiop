@@ -7,7 +7,7 @@ No external dependencies beyond core types.
 from __future__ import annotations
 
 from collections import defaultdict
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import date, timedelta
 
 from ..core.bom import BOM
@@ -98,7 +98,7 @@ def run_mrp(
     # Process by low-level code (0 first)
     max_llc = max(llc.values()) if llc else 0
     for level in range(max_llc + 1):
-        items_at_level = [iid for iid, l in llc.items() if l == level]
+        items_at_level = [iid for iid, llc_val in llc.items() if llc_val == level]
 
         for item_id in items_at_level:
             item = items.get(item_id)

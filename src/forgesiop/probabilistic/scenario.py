@@ -6,7 +6,7 @@ Run a plan N times with perturbed inputs to understand sensitivity.
 from __future__ import annotations
 
 import random
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 
 @dataclass

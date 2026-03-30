@@ -6,6 +6,8 @@ Falls back to single-echelon approximation otherwise.
 
 from __future__ import annotations
 
+import importlib.util
+
 
 def base_stock_newsvendor(
     demand_mean: float,
@@ -52,12 +54,9 @@ def guaranteed_service_model(
 
     Requires stockpyl for full optimization. This is a simplified version.
     """
-    try:
-        # Try stockpyl for rigorous optimization
-        import stockpyl
+    _has_stockpyl = importlib.util.find_spec("stockpyl") is not None
+    if _has_stockpyl:
         # TODO: wire stockpyl.ssm or stockpyl.gsm when API stabilizes
-        pass
-    except ImportError:
         pass
 
     # Simplified: treat each stage independently with adjusted lead time

@@ -56,11 +56,12 @@ def simulate_production(
         # Sample demand
         d = max(0, random.gauss(demand_mean, demand_std))
 
-        # Sample lead time
+        # Sample lead time — demand accumulates over lead time
         lt = max(0.5, random.gauss(lead_time_mean, lead_time_std))
+        demand_during_lt = d * lt
 
-        # Ending inventory
-        inv = good_output - d
+        # Ending inventory: good output minus demand over lead time
+        inv = good_output - demand_during_lt
         inventory_samples.append(inv)
         good_output_samples.append(good_output)
         service_samples.append(1.0 if inv >= 0 else 0.0)

@@ -3,7 +3,7 @@
 import pytest
 
 from forgesiop.core.bom import BOM
-from forgesiop.core.types import BOMEntry, Item, SupplyRisk, ProcessCapability
+from forgesiop.core.types import BOMEntry, SupplyRisk, ProcessCapability
 from forgesiop.demand.forecasting import (
     croston_intermittent,
     holt_trend_corrected,
