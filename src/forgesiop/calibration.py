@@ -11,7 +11,6 @@ Golden reference cases for supply chain computations:
 
 from __future__ import annotations
 
-import math
 
 
 # Golden reference cases — known correct answers
